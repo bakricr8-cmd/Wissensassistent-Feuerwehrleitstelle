@@ -63,11 +63,9 @@ Die konkreten Versionsanforderungen werden im weiteren Projektverlauf festgelegt
 ### 1. Repository klonen
 
 ```bash
-git clone <REPOSITORY-URL>
-cd <REPOSITORY-ORDNER>
+git clone https://github.com/bakricr8-cmd/Wissensassistent-Feuerwehrleitstelle
 ```
 
-Ersetze die Platzhalter durch die URL und den Ordnernamen eures GitHub-Repositories.
 
 ### 2. Virtuelle Python-Umgebung erstellen
 
