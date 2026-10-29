@@ -1,0 +1,30 @@
+{
+    "schulung_alt.txt": {
+        "dokument_id": "schulung",
+        "version": "1.0",
+        "status": "freigegeben",
+        "gueltig_ab": "2026-01-01",
+        "gueltig_bis": "2026-09-30"
+    },
+    "schulung.txt": {
+        "dokument_id": "schulung",
+        "version": "2.0",
+        "status": "freigegeben",
+        "gueltig_ab": "2026-10-01",
+        "gueltig_bis": null
+    },
+    "ausleihe.txt": {
+        "dokument_id": "ausleihe",
+        "version": "1.0",
+        "status": "freigegeben",
+        "gueltig_ab": "2026-01-01",
+        "gueltig_bis": null
+    },
+    "test.txt": {
+        "dokument_id": "besprechungsraum",
+        "version": "1.0",
+        "status": "freigegeben",
+        "gueltig_ab": "2026-01-01",
+        "gueltig_bis": null
+    }
+}

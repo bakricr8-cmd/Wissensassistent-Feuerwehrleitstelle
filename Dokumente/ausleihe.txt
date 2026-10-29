@@ -1,0 +1,3 @@
+Fiktives Testdokument – keine Einsatzanweisung.
+Beamer können bei der Verwaltung ausgeliehen werden.
+Die maximale Ausleihdauer beträgt drei Tage.
