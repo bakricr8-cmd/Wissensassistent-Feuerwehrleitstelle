@@ -1,0 +1,1 @@
+"""Kernmodule des Feuerwehr-Wissensassistenten."""

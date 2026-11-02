@@ -1,209 +1,96 @@
 # Wissensassistent-Feuerwehrleitstelle
 
-Ein lokaler, KI-gestützter Wissensassistent zur Suche und Beantwortung von Fragen auf Grundlage von Feuerwehrdokumenten wie Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Standard Operating Procedures (SOPs) und Katastrophenschutzkonzepten.
+Lokaler Forschungs- und Entwicklungsprototyp für die Suche in Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Standard Operating Procedures (SOPs) und Katastrophenschutzkonzepten. Das Projekt entsteht für die Feuerwehr der Stadt Krefeld.
 
-## Projekt
+## Prototyp-Funktionen
 
-Im Rahmen des Projekts wird ein Wissensassistent für die Feuerwehrleitstelle Krefeld konzipiert und prototypisch umgesetzt. Ziel ist es, relevante Informationen aus vorhandenen Dokumenten schnell auffindbar zu machen und Disponenten sowie Lagedienst bei der Informationssuche zu unterstützen.
+- Streamlit-Oberfläche mit Frage-/Antwortansicht und Dokumentenverwaltung
+- Import von PDF-, TXT- und Markdown-Dateien
+- BM25-Volltext-Retrieval über lokal gespeicherte Dokumentinhalte
+- Optional: Antwortgenerierung mit einem lokalen Ollama-Modell
+- Anzeige von Dokumentart, zuständiger Stelle, Version und Fundstelle
+- SQLite-Versionierung: bestehende Versionen können nicht überschrieben werden
+- Berücksichtigung des Status und des Gültigkeitszeitraums
+- Prüfprotokoll mit Gültigkeitsstichtag, verwendeten Textstellen und Quellenhashes
+- Mitgelieferte fiktive Beispieldokumente werden beim Start einmalig importiert
 
-Das System basiert auf dem **Retrieval-Augmented-Generation-Prinzip (RAG)**. Dabei werden zunächst passende Textstellen aus den hinterlegten Dokumenten gesucht. Anschließend erzeugt ein Sprachmodell auf Grundlage dieser Informationen eine Antwort.
+Die Dokumentarten in der Oberfläche sind eine erste Auswahl, noch keine mit der Feuerwehr abgestimmte Taxonomie. Auch Zuständigkeiten und Freigabeabläufe müssen im Auftaktgespräch geklärt werden. Die Suche verwendet vorerst BM25; Ollama ist nur für die optionale Antwortformulierung zuständig.
 
-Ein besonderer Schwerpunkt liegt auf der Nachvollziehbarkeit der Antworten sowie auf der Versionierung und Aktualität der verwendeten Dokumente.
+## Projektstruktur
 
-## Features
-
-- Beantwortung natürlichsprachlicher Fragen zu hinterlegten Feuerwehrdokumenten
-- Suche nach relevanten Textstellen in PDF-Dokumenten
-- KI-gestützte Antwortgenerierung mithilfe eines lokalen Sprachmodells
-- Anzeige der verwendeten Quellen zur Nachvollziehbarkeit der Antworten
-- Verwaltung und Aktualisierung der Dokumentengrundlage
-- Konzept zur Versionierung und Protokollierung von Dokumenten
-- Ziel: Berücksichtigung der Gültigkeit und Aktualität von Dokumentversionen
-
-## Technischer Stack
-
-| Technologie | Aufgabe |
-|---|---|
-| Python | Programmiersprache und Anwendungslogik |
-| Streamlit | Benutzeroberfläche |
-| LlamaIndex | Verarbeitung der Dokumente und RAG-Pipeline |
-| ChromaDB | Vektordatenbank für die semantische Suche |
-| Ollama | Lokale Ausführung des Sprachmodells |
-| Qwen3 | Geplantes Sprachmodell |
-| SQLite | Geplante Speicherung von Versionsinformationen und Metadaten |
-| PlantUML | Modellierung der technischen Systemarchitektur |
-
-*Hinweis: Der Stack beschreibt die geplante Architektur. Die tatsächlich implementierten Komponenten werden im Projektverlauf ergänzt bzw. angepasst.*
-
-## Inhaltsverzeichnis
-
-- [Voraussetzungen](#voraussetzungen)
-- [Installation](#installation)
-- [Konfiguration](#konfiguration)
-- [Verwendung](#verwendung)
-- [Architektur](#architektur)
-- [Dokumentenverwaltung und Versionierung](#dokumentenverwaltung-und-versionierung)
-- [Projektstatus](#projektstatus)
-- [Sicherheitshinweis](#sicherheitshinweis)
+```text
+app.py                    Streamlit-Oberfläche
+src/
+  database.py              SQLite-Schema, Versionen und Prüfprotokoll
+  document_loader.py       PDF-/Text-Extraktion und Metadatenimport
+  document_search.py       BM25-Suche und Quellenangaben
+  rag_pipeline.py          Promptaufbau und Ollama-Anbindung
+  version_manager.py       Gültigkeits- und Versionsregeln
+Dokumente/                 Fiktive Beispieldokumente und Metadaten
+tests/                     Tests für Retrieval und Versionierung
+data/                      Lokale Datenbank (wird nicht eingecheckt)
+```
 
 ## Voraussetzungen
 
-Für den geplanten Prototyp werden folgende Komponenten benötigt:
+- Python 3.11 oder neuer
+- Für KI-generierte Antworten optional: Ollama und ein lokales Chatmodell
+- Keine Ollama-Installation für Retrieval-only erforderlich
 
-- Python 3.11 oder höher (konkrete Version wird im Projekt festgelegt)
-- Ollama
-- Ein lokal verfügbares, unterstütztes Sprachmodell, z. B. Qwen3
-- Git
-- PDF-Dokumente als Wissensgrundlage
-
-Die konkreten Versionsanforderungen werden im weiteren Projektverlauf festgelegt.
-
-## Installation
-
-### 1. Repository klonen
-
-```bash
-git clone https://github.com/bakricr8-cmd/Wissensassistent-Feuerwehrleitstelle
-```
-
-
-### 2. Virtuelle Python-Umgebung erstellen
-
-**Windows (PowerShell):**
+## Installation unter Windows (PowerShell)
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
 
-**macOS / Linux:**
+## Start
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. Abhängigkeiten installieren
-
-Sobald die Datei `requirements.txt` im Repository vorhanden ist:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Ollama einrichten
-
-Ollama installieren und das im Projekt konfigurierte Sprachmodell lokal bereitstellen.
-
-Beispiel für Qwen3:
-
-```bash
-ollama pull qwen3:8b
-```
-
-Das konkrete Modell kann je nach verfügbarer Hardware angepasst werden.
-
-### 5. Anwendung starten
-
-Sobald die Streamlit-Anwendung implementiert ist, kann sie beispielsweise folgendermaßen gestartet werden:
-
-```bash
+```powershell
 streamlit run app.py
 ```
 
-Der tatsächliche Startbefehl richtet sich nach der späteren Projektstruktur.
+Beim ersten Start werden die Beispielversionen aus `Dokumente/` und `Dokumente/metadaten.json` in `data/wissensassistent.sqlite3` übernommen. Die alte Version der Schulungsunterlage bleibt als Historie erhalten, wird aber außerhalb ihres Gültigkeitszeitraums nicht für Antworten verwendet.
 
-## Konfiguration
+Im Seitenbereich kann zwischen **Fundstellen (ohne KI)** und **Ollama (lokal)** gewechselt werden. Für Ollama muss der Dienst laufen und das ausgewählte Modell vorhanden sein, beispielsweise:
 
-### Dokumente
+```powershell
+ollama pull qwen3:4b-instruct
+```
 
-Die Wissensgrundlage besteht aus freigegebenen PDF-Dokumenten, beispielsweise:
+Der lokale Ollama-Port und der Modellname sind in der Oberfläche änderbar. Aus Datenschutzgründen akzeptiert die Antwortgenerierung nur HTTP auf `localhost` oder einer Loopback-IP. Ist Ollama nicht erreichbar, zeigt die Anwendung einen Fehler an und wechselt nicht stillschweigend in einen anderen Antwortmodus.
 
-- Alarm- und Ausrückeordnungen (AAO)
-- Dienstanweisungen
-- Standard Operating Procedures (SOPs)
-- Katastrophenschutzkonzepte
+## Tests
 
-Die konkrete Ablage und Verarbeitung der Dokumente wird im Projekt festgelegt.
+```powershell
+python -m unittest discover -s tests -v
+```
 
-### Sprachmodell
+Die Tests benötigen keine Ollama-Instanz. Sie prüfen unter anderem Gültigkeitszeiträume, Versionen, Fundstellen und das Prüfprotokoll.
 
-Das Sprachmodell wird lokal über Ollama bereitgestellt. Das verwendete Modell und dessen Konfiguration sollen zentral dokumentiert werden.
+## Dokumentpflege und Nachvollziehbarkeit
 
-### Versionsverwaltung
+Beim Import werden Dokument-ID, Dokumentart, zuständige Stelle, Versionsnummer, Status (`freigegeben` oder `entwurf`) und Gültigkeitszeitraum erfasst. Dokumentart und zuständige Stelle dürfen vorerst offenbleiben. Freigegebene Versionen derselben Dokument-ID dürfen keine überlappenden Zeiträume haben. Bei einer Frage prüft die Suche die Gültigkeit für den angezeigten Stichtag. Datum, Antwort und die tatsächlich verwendeten Textstellen werden mit Versionsangabe und Datei-Hash protokolliert.
 
-Für die Nachvollziehbarkeit sollen relevante Dokumentmetadaten erfasst werden. Dazu können beispielsweise gehören:
+Der Prototyp kann Versionen aufnehmen, aber noch keinen abgestimmten Freigabe- oder Rücknahmeprozess abbilden. Wie eine zuständige Stelle eine Freigabe, Korrektur oder kurzfristige Rücknahme dokumentiert, muss mit der Feuerwehr besprochen werden.
 
-- Dokumentname und eindeutige Kennung
-- Versionsnummer
-- Datum der letzten Aktualisierung
-- Gültigkeitszeitraum, sofern vorhanden
-- Status der Dokumentversion
-- Zuordnung der verwendeten Quellen zu einer Antwort
+Die gespeicherten Dateien und Ereignisse sind durch SHA-256-Hashes miteinander verknüpft. Änderungen an Text, Metadaten oder Protokoll lassen sich dadurch erkennen. Das ist keine revisionssichere Archivierung: Eine lokale SQLite-Datei kann außerhalb der Anwendung ersetzt werden.
 
-Die konkreten Felder und Prüfmechanismen werden im Rahmen der Implementierung definiert.
+Vor einem Test mit Krefelder Unterlagen sollte geklärt werden:
 
-## Verwendung
+- Welche Unterlagen und Ablageorte gehören zum Projekt?
+- Wer hält ein Dokument aktuell und wer gibt neue Versionen frei?
+- Welche Status und Gültigkeitsregeln gelten heute?
+- Welche Beispieldokumente dürfen für den Prototyp verwendet werden?
+- Welche Fundstelle soll in einer Antwort sichtbar sein?
+- Welche Anforderungen gelten für Zugriffsrechte, Datenschutz und Protokollierung?
 
-Der vorgesehene Ablauf des Wissensassistenten:
+## Sicherheit und Grenzen
 
-1. Freigegebene Dokumente werden in das System aufgenommen.
-2. Die Dokumente werden für die Suche aufbereitet und indexiert.
-3. Ein Disponent stellt eine Frage über die Benutzeroberfläche.
-4. Das System sucht passende Textstellen in der Wissensbasis.
-5. Das Sprachmodell erstellt auf Grundlage der gefundenen Informationen eine Antwort.
-6. Die Antwort wird zusammen mit den zugehörigen Quellen angezeigt.
-
-Beispiel für eine mögliche Anfrage:
-
-> Welche Informationen enthält die hinterlegte Dienstanweisung zu einem bestimmten Einsatzszenario?
-
-Die konkrete Antwort hängt von den tatsächlich hinterlegten und freigegebenen Dokumenten ab.
-
-## Architektur
-
-Die geplante Systemarchitektur besteht aus folgenden Komponenten:
-
-- **Streamlit:** Benutzeroberfläche
-- **Python:** Anwendungslogik und Steuerung
-- **LlamaIndex:** Dokumentenverarbeitung und RAG-Ablauf
-- **ChromaDB:** Speicherung und Suche semantischer Dokumentrepräsentationen
-- **Ollama mit Qwen3:** Lokale Antwortgenerierung
-- **SQLite:** Geplante Speicherung von Dokumentmetadaten und Versionsinformationen
-
-Das System folgt grundsätzlich diesem Ablauf:
-
-**Frage → Retrieval → relevante Textstellen → Sprachmodell → Antwort mit Quellen**
-
-Die technische Architektur wird zusätzlich mit PlantUML modelliert und im Projektverlauf an die tatsächliche Implementierung angepasst.
-
-## Dokumentenverwaltung und Versionierung
-
-Ein wesentliches Projektziel ist die nachvollziehbare Verwendung von Dokumentversionen.
-
-Dabei soll berücksichtigt werden, welche Dokumentversion zum Zeitpunkt einer Anfrage als gültig eingestuft wurde und welche Quellen für die Antwort verwendet wurden.
-
-Die dafür erforderlichen Prüfungen, Aktualisierungsprozesse und Protokollierungsmechanismen werden im Rahmen des Prototyps entwickelt und evaluiert.
-
-## Projektstatus
-
-**Aktueller Status:** Konzeption und technischer Entwurf.
-
-Geplante Arbeitsschritte:
-
-- Anforderungen und Systemarchitektur definieren
-- RAG-Prototyp aufbauen
-- Dokumente einlesen und durchsuchbar machen
-- Antworten mit Quellenangaben erzeugen
-- Versionierung und Protokollierung umsetzen
-- Qualität, Nachvollziehbarkeit und Aktualität evaluieren
-
-Die tatsächlich umgesetzten Funktionen werden im Verlauf des Projekts ergänzt.
-
-## Sicherheitshinweis
-
-Dieser Wissensassistent ist ein studentischer Forschungs- und Entwicklungsprototyp. Er ist nicht für den ungeprüften Einsatz in einer realen Feuerwehrleitstelle vorgesehen.
-
-KI-generierte Antworten können unvollständig oder fehlerhaft sein. Insbesondere bei einsatzrelevanten Informationen müssen die Originaldokumente und deren Gültigkeit geprüft werden. Eine Nutzung im operativen Einsatz setzt eine entsprechende fachliche, technische und organisatorische Freigabe voraus.
-
-Vertrauliche Feuerwehrdokumente, personenbezogene Daten und interne Einsatzinformationen dürfen nur nach ausdrücklicher Freigabe und unter Einhaltung der geltenden Datenschutz- und Sicherheitsvorgaben verarbeitet werden.
+- Ausschließlich fiktive oder ausdrücklich freigegebene Testdaten verwenden.
+- Fragen und Antworten werden lokal in SQLite protokolliert. Die Datenbank liegt unter `data/` und wird durch `.gitignore` vom Git-Repository ausgeschlossen.
+- Der Prototyp hat keine Benutzeranmeldung, Rollen, OCR, abgestimmten Freigabe- und Rücknahmeprozess oder garantierte semantische Suche.
+- Die Hash-Kette ersetzt keine revisionssichere Langzeitarchivierung.
+- KI-Antworten können unvollständig oder falsch sein. Quellen sind immer anhand des freigegebenen Originaldokuments zu prüfen.
+- Das System ist nicht für operative Dispositionsentscheidungen freigegeben.
