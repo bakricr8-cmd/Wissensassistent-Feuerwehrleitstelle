@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
@@ -26,7 +27,10 @@ def extract_document(
         if reader.is_encrypted:
             raise ValueError(f"Das PDF '{filename}' ist verschlüsselt.")
         pages = tuple(
-            PageContent(page_number=index, text=(page.extract_text() or "").strip())
+            PageContent(
+                page_number=index,
+                text=(page.extract_text() or "").strip(),
+            )
             for index, page in enumerate(reader.pages, start=1)
         )
     elif suffix in {".txt", ".md"}:
@@ -51,8 +55,6 @@ def extract_document(
 
 
 def load_metadata_file(metadata_path: Path) -> dict[str, dict[str, object]]:
-    import json
-
     try:
         data = json.loads(metadata_path.read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as error:

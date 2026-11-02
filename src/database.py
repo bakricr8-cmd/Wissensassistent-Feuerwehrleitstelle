@@ -91,7 +91,10 @@ def initialize_database(database_path: Path = DATABASE_PATH) -> None:
                     (extracted_hash, row["id"]),
                 )
                 migrated_hashes.append(
-                    {"version_record_id": str(row["id"]), "extracted_hash": extracted_hash}
+                    {
+                        "version_record_id": str(row["id"]),
+                        "extracted_hash": extracted_hash,
+                    }
                 )
             if migrated_hashes:
                 _append_audit_event(
@@ -152,9 +155,7 @@ def _append_audit_event(
     details_json = json.dumps(
         details, ensure_ascii=False, sort_keys=True, separators=(",", ":")
     )
-    payload = "\n".join(
-        (occurred_at, action, actor, details_json, previous_hash)
-    )
+    payload = "\n".join((occurred_at, action, actor, details_json, previous_hash))
     event_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
     connection.execute(
         """
@@ -248,7 +249,11 @@ def list_document_versions(
 ) -> list[dict[str, Any]]:
     with connect(database_path) as connection:
         rows = connection.execute(
-            "SELECT * FROM document_versions ORDER BY document_id, valid_from, id"
+            """
+            SELECT *
+            FROM document_versions
+            ORDER BY document_id, valid_from, id
+            """
         ).fetchall()
         audit_rows = connection.execute(
             "SELECT * FROM audit_events ORDER BY id"
@@ -300,9 +305,9 @@ def list_document_versions(
                     f"Metadaten von '{row['document_id']}' Version "
                     f"{row['version']}' stimmen nicht mit dem Prüfprotokoll überein."
                 )
-        expected_extracted_hash = details.get("extracted_hash") or migrated_hashes.get(
-            str(row["id"])
-        )
+        expected_extracted_hash = details.get("extracted_hash")
+        if expected_extracted_hash is None:
+            expected_extracted_hash = migrated_hashes.get(str(row["id"]))
         if (
             expected_extracted_hash is not None
             and expected_extracted_hash != row["extracted_hash"]

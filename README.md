@@ -6,7 +6,7 @@ Lokaler Forschungs- und Entwicklungsprototyp für die Suche in Dienstanweisungen
 
 - Streamlit-Oberfläche mit Frage-/Antwortansicht und Dokumentenverwaltung
 - Import von PDF-, TXT- und Markdown-Dateien
-- BM25-Volltext-Retrieval über lokal gespeicherte Dokumentinhalte
+- Einfache Stichwortsuche in lokal gespeicherten Dokumenten
 - Optional: Antwortgenerierung mit einem lokalen Ollama-Modell
 - Anzeige von Dokumentart, zuständiger Stelle, Version und Fundstelle
 - SQLite-Versionierung: bestehende Versionen können nicht überschrieben werden
@@ -14,7 +14,7 @@ Lokaler Forschungs- und Entwicklungsprototyp für die Suche in Dienstanweisungen
 - Prüfprotokoll mit Gültigkeitsstichtag, verwendeten Textstellen und Quellenhashes
 - Mitgelieferte fiktive Beispieldokumente werden beim Start einmalig importiert
 
-Die Dokumentarten in der Oberfläche sind eine erste Auswahl, noch keine mit der Feuerwehr abgestimmte Taxonomie. Auch Zuständigkeiten und Freigabeabläufe müssen im Auftaktgespräch geklärt werden. Die Suche verwendet vorerst BM25; Ollama ist nur für die optionale Antwortformulierung zuständig.
+Die Dokumentarten in der Oberfläche sind eine erste Auswahl, noch keine mit der Feuerwehr abgestimmte Taxonomie. Auch Zuständigkeiten und Freigabeabläufe müssen im Auftaktgespräch geklärt werden. Die Suche vergleicht vorerst Stichwörter. Sie findet keine ähnlichen Begriffe oder Bedeutungen. Ollama ist nur für die optionale Antwortformulierung zuständig.
 
 ## Projektstruktur
 
@@ -23,7 +23,7 @@ app.py                    Streamlit-Oberfläche
 src/
   database.py              SQLite-Schema, Versionen und Prüfprotokoll
   document_loader.py       PDF-/Text-Extraktion und Metadatenimport
-  document_search.py       BM25-Suche und Quellenangaben
+  document_search.py       Stichwortsuche und Quellenangaben
   rag_pipeline.py          Promptaufbau und Ollama-Anbindung
   version_manager.py       Gültigkeits- und Versionsregeln
 Dokumente/                 Fiktive Beispieldokumente und Metadaten
@@ -37,7 +37,9 @@ data/                      Lokale Datenbank (wird nicht eingecheckt)
 - Für KI-generierte Antworten optional: Ollama und ein lokales Chatmodell
 - Keine Ollama-Installation für Retrieval-only erforderlich
 
-## Installation unter Windows (PowerShell)
+## Installation
+
+### Windows (PowerShell)
 
 ```powershell
 python -m venv .venv
@@ -45,25 +47,55 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
+### macOS (Terminal)
+
+Prüfe zuerst, ob Python 3.11 oder neuer installiert ist:
+
+```bash
+python3 --version
+```
+
+Erstelle dann im Projektordner eine virtuelle Umgebung und installiere die Abhängigkeiten:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+Falls `python3` fehlt oder älter als 3.11 ist, installiere eine aktuelle Python-Version, zum Beispiel von [python.org](https://www.python.org/downloads/macos/), und führe die Befehle erneut aus.
+
 ## Start
 
-```powershell
+In einem aktivierten virtuellen Environment:
+
+```bash
 streamlit run app.py
 ```
+
+Der Startbefehl ist unter Windows und macOS gleich.
 
 Beim ersten Start werden die Beispielversionen aus `Dokumente/` und `Dokumente/metadaten.json` in `data/wissensassistent.sqlite3` übernommen. Die alte Version der Schulungsunterlage bleibt als Historie erhalten, wird aber außerhalb ihres Gültigkeitszeitraums nicht für Antworten verwendet.
 
 Im Seitenbereich kann zwischen **Fundstellen (ohne KI)** und **Ollama (lokal)** gewechselt werden. Für Ollama muss der Dienst laufen und das ausgewählte Modell vorhanden sein, beispielsweise:
 
-```powershell
+```bash
 ollama pull qwen3:4b-instruct
 ```
 
 Der lokale Ollama-Port und der Modellname sind in der Oberfläche änderbar. Aus Datenschutzgründen akzeptiert die Antwortgenerierung nur HTTP auf `localhost` oder einer Loopback-IP. Ist Ollama nicht erreichbar, zeigt die Anwendung einen Fehler an und wechselt nicht stillschweigend in einen anderen Antwortmodus.
 
+Für KI-generierte Antworten unter macOS Ollama von [ollama.com/download](https://ollama.com/download) installieren und starten. Anschließend im Terminal das gewünschte Modell laden:
+
+```bash
+ollama pull qwen3:4b-instruct
+```
+
 ## Tests
 
-```powershell
+Bei aktivierter virtueller Umgebung:
+
+```bash
 python -m unittest discover -s tests -v
 ```
 

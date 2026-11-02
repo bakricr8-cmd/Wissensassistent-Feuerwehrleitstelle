@@ -26,7 +26,9 @@ class DocumentIntegrityError(ValueError):
     """Der gespeicherte Dokumenttext stimmt nicht mehr mit seinem Hash überein."""
 
 
-def _parse_metadata(metadata: dict[str, Any]) -> tuple[str, str, date, date | None]:
+def _parse_metadata(
+    metadata: dict[str, Any],
+) -> tuple[str, str, date, date | None]:
     for field in ("dokument_id", "version", "status", "gueltig_ab"):
         value = metadata.get(field)
         if not isinstance(value, str) or not value.strip():
@@ -38,7 +40,9 @@ def _parse_metadata(metadata: dict[str, Any]) -> tuple[str, str, date, date | No
     if status not in ALLOWED_STATUSES:
         raise ValueError("Status muss 'freigegeben' oder 'entwurf' sein.")
     if "gueltig_bis" not in metadata:
-        raise ValueError("Pflichtfeld 'gueltig_bis' fehlt; null bedeutet unbegrenzt.")
+        raise ValueError(
+            "Pflichtfeld 'gueltig_bis' fehlt; null bedeutet unbegrenzt."
+        )
     valid_to_text = metadata["gueltig_bis"]
     if valid_to_text is not None and not isinstance(valid_to_text, str):
         raise ValueError("'gueltig_bis' muss ein ISO-Datum oder null sein.")
@@ -51,7 +55,9 @@ def _parse_metadata(metadata: dict[str, Any]) -> tuple[str, str, date, date | No
             else None
         )
     except ValueError as error:
-        raise ValueError("Gültigkeitsdaten müssen ISO-Daten (JJJJ-MM-TT) sein.") from error
+        raise ValueError(
+            "Gültigkeitsdaten müssen ISO-Daten (JJJJ-MM-TT) sein."
+        ) from error
 
     if isinstance(valid_to_text, str) and not valid_to_text.strip():
         raise ValueError("'gueltig_bis' muss ein ISO-Datum oder null sein.")
@@ -125,10 +131,7 @@ def register_document_version(
                 )
 
     pages_json = json.dumps(
-        [
-            {"page_number": page.page_number, "text": page.text}
-            for page in pages
-        ],
+        [{"page_number": page.page_number, "text": page.text} for page in pages],
         ensure_ascii=False,
         separators=(",", ":"),
     )
@@ -179,7 +182,10 @@ def get_active_documents(
             actual_hash = hashlib.sha256(
                 version["pages_json"].encode("utf-8")
             ).hexdigest()
-            if not stored_hash or not hmac.compare_digest(stored_hash, actual_hash):
+            hashes_match = bool(stored_hash) and hmac.compare_digest(
+                stored_hash, actual_hash
+            )
+            if not hashes_match:
                 raise DocumentIntegrityError(
                     f"Der gespeicherte Text von '{version['document_id']}' "
                     f"Version {version['version']} wurde verändert. "

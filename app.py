@@ -17,7 +17,11 @@ from src.database import (
     verify_audit_chain,
 )
 from src.document_loader import extract_document, load_metadata_file
-from src.document_search import RetrievedChunk, citation_records, search_documents
+from src.document_search import (
+    RetrievedChunk,
+    citation_records,
+    search_documents,
+)
 from src.rag_pipeline import OllamaError, generate_answer
 from src.version_manager import (
     VersionConflictError,
@@ -75,7 +79,8 @@ def _render_chat_message(message: dict[str, Any]) -> None:
     with st.chat_message(message["role"]):
         if message.get("valid_on"):
             st.caption(
-                f"Für Dokumente gültig am {message['valid_on'].strftime('%d.%m.%Y')}"
+                "Für Dokumente gültig am "
+                f"{message['valid_on'].strftime('%d.%m.%Y')}"
             )
         if message.get("error"):
             st.error(message["content"])
@@ -99,20 +104,8 @@ def _answer_question(
             "In den aktuell freigegebenen und gültigen Dokumentversionen "
             "wurden keine passenden Textstellen gefunden."
         )
-        log_query(
-            question=question,
-            answer=answer,
-            mode=mode,
-            model=model if mode == "Ollama (lokal)" else None,
-            citations=[],
-            valid_on=valid_on,
-        )
-        return answer, []
-
-    if mode == "Ollama (lokal)":
-        answer = generate_answer(
-            question, chunks, model=model, endpoint=endpoint
-        )
+    elif mode == "Ollama (lokal)":
+        answer = generate_answer(question, chunks, model=model, endpoint=endpoint)
     else:
         answer = (
             "Ich habe passende Fundstellen gefunden. "
@@ -159,7 +152,10 @@ def _render_upload_form() -> None:
         )
         responsible_unit = st.text_input(
             "Zuständige Stelle (optional)",
-            help="Zum Beispiel Organisationseinheit oder Dokumentverantwortliche.",
+            help=(
+                "Zum Beispiel Organisationseinheit oder "
+                "Dokumentverantwortliche."
+            ),
         )
         status = st.selectbox(
             "Status",
@@ -181,9 +177,7 @@ def _render_upload_form() -> None:
     metadata = {
         "dokument_id": document_id,
         "version": version,
-        "dokumentart": (
-            None if document_type == "Nicht festgelegt" else document_type
-        ),
+        "dokumentart": None if document_type == "Nicht festgelegt" else document_type,
         "zustaendige_stelle": responsible_unit,
         "status": status,
         "gueltig_ab": valid_from.isoformat(),
@@ -231,7 +225,9 @@ def _render_versions() -> None:
                     "Version": item["version"],
                     "Datei": item["filename"],
                     "Dokumentart": item["document_type"] or "Nicht festgelegt",
-                    "Zuständige Stelle": item["responsible_unit"] or "Nicht festgelegt",
+                    "Zuständige Stelle": (
+                        item["responsible_unit"] or "Nicht festgelegt"
+                    ),
                     "Status": item["status"],
                     "Gültig ab": item["valid_from"],
                     "Gültig bis": item["valid_to"] or "unbegrenzt",
@@ -288,7 +284,9 @@ def main() -> None:
         layout="wide",
     )
     st.title("Feuerwehr-Wissensassistent")
-    st.caption("Prototyp · lokale Dokumentensuche mit Quellen und Versionierung")
+    st.caption(
+        "Prototyp · lokale Dokumentensuche mit Quellen und Versionierung"
+    )
     st.warning(
         "Nur mit fiktiven oder ausdrücklich freigegebenen Testdokumenten "
         "verwenden. Fragen und Antworten werden lokal protokolliert. "
@@ -302,7 +300,6 @@ def main() -> None:
     except (OSError, ValueError, sqlite3.Error) as error:
         st.error(f"Initialisierung fehlgeschlagen: {error}")
         st.stop()
-        return
 
     if imported:
         st.toast(f"{imported} Beispieldokument(e) importiert.")
@@ -363,7 +360,11 @@ def main() -> None:
                         question=question,
                         answer=None,
                         mode=mode,
-                        model=model.strip() if mode == "Ollama (lokal)" else None,
+                        model=(
+                            model.strip()
+                            if mode == "Ollama (lokal)"
+                            else None
+                        ),
                         citations=[],
                         valid_on=valid_on,
                         error=str(error),

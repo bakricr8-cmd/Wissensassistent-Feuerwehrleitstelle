@@ -12,7 +12,10 @@ class OllamaError(RuntimeError):
     """Ollama kann keine Antwort liefern."""
 
 
-def build_prompt(question: str, chunks: list[RetrievedChunk]) -> list[dict[str, str]]:
+def build_prompt(
+    question: str,
+    chunks: list[RetrievedChunk],
+) -> list[dict[str, str]]:
     context = "\n\n".join(
         f"[{index}] Quelle: {chunk.citation} "
         f"(Datei: {chunk.filename}, Dokumentart: "
@@ -51,7 +54,8 @@ def generate_answer(
     parsed_endpoint = urlparse(endpoint)
     if (
         parsed_endpoint.scheme != "http"
-        or parsed_endpoint.hostname not in {"localhost", "127.0.0.1", "::1"}
+        or parsed_endpoint.hostname
+        not in {"localhost", "127.0.0.1", "::1"}
         or parsed_endpoint.username is not None
         or parsed_endpoint.password is not None
         or parsed_endpoint.query
@@ -59,7 +63,7 @@ def generate_answer(
     ):
         raise OllamaError(
             "Aus Datenschutzgründen sind nur HTTP-Endpunkte auf localhost "
-            "oder der Loopback-Adresse erlaubt."
+            "oder einer Loopback-IP erlaubt."
         )
     payload = {
         "model": model,

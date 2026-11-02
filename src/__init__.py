@@ -1,1 +1,1 @@
-"""Kernmodule des Feuerwehr-Wissensassistenten."""
+"""Module für Dokumentimport, Suche und Versionsverwaltung."""

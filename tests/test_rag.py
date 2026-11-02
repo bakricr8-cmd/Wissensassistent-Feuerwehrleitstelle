@@ -7,7 +7,11 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from src.database import initialize_database, list_audit_events, log_query
+from src.database import (
+    initialize_database,
+    list_audit_events,
+    log_query,
+)
 from src.document_loader import PageContent
 from src.document_search import citation_records, search_documents
 from src.rag_pipeline import OllamaError, build_prompt, generate_answer
@@ -133,10 +137,11 @@ class RetrievalTests(unittest.TestCase):
         self.assertIn("nicht vertrauenswürdige", messages[0]["content"])
         self.assertIn("freigegeben, Version 1.0", messages[1]["content"])
         self.assertEqual(len(citation_records(results)), 1)
-        self.assertIn(
-            "Die interne Softwareschulung findet dienstags um 10 Uhr statt.",
-            citation_records(results)[0]["text"],
+        expected_text = (
+            "Die interne Softwareschulung findet dienstags um 10 Uhr statt."
         )
+        cited_text = citation_records(results)[0]["text"]
+        self.assertIn(expected_text, cited_text)
 
     def test_query_audit_records_date_and_cited_text(self) -> None:
         results = search_documents(
@@ -159,7 +164,8 @@ class RetrievalTests(unittest.TestCase):
 
         self.assertEqual(details["valid_on"], "2026-02-01")
         self.assertEqual(details["citations"][0]["version"], "1.0")
-        self.assertIn("dienstags", details["citations"][0]["text"])
+        cited_text = details["citations"][0]["text"]
+        self.assertIn("dienstags", cited_text)
 
     def test_ollama_rejects_non_local_endpoint(self) -> None:
         results = search_documents(
