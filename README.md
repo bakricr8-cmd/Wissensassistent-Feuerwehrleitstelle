@@ -1,29 +1,30 @@
 # Wissensassistent Feuerwehrleitstelle
 
-Lokaler Wissensassistent zur Suche und Beantwortung von Fragen auf Grundlage von Feuerwehrdokumenten unter Berücksichtigung von Dokumentversionen und Gültigkeitszeiträumen.
+Lokaler Wissensassistent zur Suche in Feuerwehrdokumenten mit Dokumentenverwaltung, Versionskontrolle und optionaler KI-gestützter Antwortgenerierung.
+
+![Benutzeroberfläche des Wissensassistenten](UML/Screenshot.png)
 
 ## Projekt
 
 Dieses Projekt entwickelt einen Wissensassistenten für die Feuerwehr der Stadt Krefeld.
 
-Ziel ist es, Mitarbeitenden einer Feuerwehrleitstelle den Zugriff auf wichtige Informationen aus verschiedenen Dokumenten zu erleichtern. Dazu gehören beispielsweise Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Checklisten, Standard Operating Procedures (SOPs) und Katastrophenschutzkonzepte.
+Ziel ist es, Mitarbeitenden einer Feuerwehrleitstelle den Zugriff auf Informationen aus verschiedenen Dokumenten zu erleichtern. Dazu gehören beispielsweise Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Standard Operating Procedures (SOPs), Checklisten und Katastrophenschutzkonzepte.
 
-Dokumente können eingelesen, verwaltet und durchsucht werden. Zu einer Anfrage werden passende Textstellen und die zugehörigen Quellen angezeigt. Optional kann ein lokal ausgeführtes Sprachmodell von Ollama zur Formulierung einer Antwort verwendet werden.
+Das System ermöglicht die Suche nach relevanten Informationen und zeigt die dazugehörigen Dokumentquellen und Fundstellen an. Optional können die gefundenen Textstellen mithilfe eines lokal ausgeführten Sprachmodells von Ollama zu einer Antwort zusammengefasst werden.
 
-Ein besonderer Schwerpunkt liegt auf der Verwaltung von Dokumentversionen und Gültigkeitszeiträumen, damit abgelaufene oder nicht freigegebene Dokumente nicht als gültige Informationsgrundlage verwendet werden.
-
-![Benutzeroberfläche des Wissensassistenten](UML/Screenshot.png)
+Ein besonderer Schwerpunkt liegt auf der Verwaltung von Dokumentversionen und Gültigkeitszeiträumen, damit nur zum jeweiligen Zeitpunkt gültige und freigegebene Dokumente als Informationsgrundlage verwendet werden.
 
 ## Features
 
-- **Multi-Format-Import:** Import von PDF-, TXT- und Markdown-Dateien
-- **Semantische & Textsuche:** Suche nach passenden Textstellen in den hinterlegten Dokumenten
-- **Lokale KI-Integration:** Optionale Antwortgenerierung mit einem lokalen Ollama-Modell
-- **Transparenz:** Anzeige der verwendeten Dokumente und Fundstellen
-- **Gültigkeits- & Versionsverwaltung:** Steuerung von Dokumentversionen, Gültigkeitszeiträumen und Unterscheidung zwischen freigegebenen Dokumenten und Entwürfen
-- **Lokale Datenspeicherung:** Speicherung von Dokumentinformationen und Suchvorgängen in SQLite
-- **Audit-Trail:** Prüfprotokoll mit Quellen und Dokumentversionen
-- **Datenschutz:** Vollständig lokale Verarbeitung aller Dokumente
+- Import von PDF-, TXT- und Markdown-Dateien
+- Suche nach passenden Textstellen in lokalen Dokumenten
+- Optionale Antwortgenerierung mit einem lokalen Ollama-Modell
+- Anzeige von Dokumentart, zuständiger Stelle, Version und Fundstelle
+- Verwaltung von Dokumentversionen mit SQLite
+- Berücksichtigung von Dokumentstatus und Gültigkeitszeiträumen
+- Vermeidung überlappender Gültigkeitszeiträume freigegebener Versionen
+- Prüfprotokoll mit Gültigkeitsstichtag, verwendeten Textstellen und Quellenhashes
+- Lokale Speicherung der Dokumentinformationen und Suchvorgänge
 
 ## Inhaltsverzeichnis
 
@@ -37,25 +38,25 @@ Ein besonderer Schwerpunkt liegt auf der Verwaltung von Dokumentversionen und G�
 
 ## Voraussetzungen
 
-- **Python:** 3.11 oder neuer
-- **Package Manager:** `pip` zur Installation der Python-Bibliotheken
-- **Versionsverwaltung:** Git zum Klonen des Repositorys
-- **Optional:** Ollama für die KI-gestützte Antwortgenerierung (für die reine Dokumentensuche wird keine Ollama-Installation benötigt)
+- Python 3.11 oder neuer
+- `pip` zur Installation der Python-Bibliotheken
+- Git zum Klonen des Repositorys
+- **Optional:** Ollama für die KI-gestützte Antwortgenerierung (für die reine Suche nach Fundstellen ist keine Ollama-Installation erforderlich)
 
 ## Installation
 
-### 1. Repository klonen
+### Repository klonen
 ```bash
-git clone <REPOSITORY-URL>
+git clone https://github.com/bakricr8-cmd/Wissensassistent-Feuerwehrleitstelle
 cd Wissensassistent-Feuerwehrleitstelle
 ```
 
-### 2. Virtuelle Umgebung erstellen
+### Virtuelle Umgebung erstellen
 
 #### Windows (PowerShell)
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
 #### macOS / Linux
@@ -64,48 +65,71 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Bibliotheken installieren
+### Bibliotheken installieren
 ```bash
 python -m pip install -r requirements.txt
 ```
 
 ## Anwendung starten
 
-Die Anwendung wird mit Streamlit gestartet:
+Bei aktivierter virtueller Umgebung kann die Anwendung mit folgendem Befehl gestartet werden:
 
 ```bash
 streamlit run app.py
 ```
 
-Nach dem Start ist die Benutzeroberfläche standardmäßig unter folgender Adresse erreichbar:  
+Die Benutzeroberfläche ist anschließend standardmäßig unter folgender Adresse erreichbar:  
 [http://localhost:8501](http://localhost:8501)
+
+Beim ersten Start werden die mitgelieferten Beispieldokumente aus dem Ordner `Dokumente/` anhand der Datei `metadaten.json` einmalig in die lokale SQLite-Datenbank übernommen.
 
 ## Ollama konfigurieren
 
-Für die KI-gestützte Antwortgenerierung muss Ollama installiert und gestartet sein.
+Für die KI-gestützte Antwortgenerierung wird Ollama benötigt. Ollama ermöglicht die lokale Ausführung eines Sprachmodells.
 
-Die Anwendung verwendet standardmäßig folgende lokale Verbindung:
+### Ollama installieren
+Ollama kann über folgende Webseite heruntergeladen werden:  
+[https://ollama.com/download](https://ollama.com/download)
+
+### Ollama starten
+Falls Ollama nicht bereits automatisch im Hintergrund läuft, kann der Dienst über ein separates Terminal gestartet werden:
+
+```bash
+ollama serve
+```
+
+Der lokale Ollama-Dienst verwendet standardmäßig folgenden Endpunkt:
 - **URL:** `http://127.0.0.1:11434`
 - **Port:** `11434`
 
-Das verwendete Modell kann in der Benutzeroberfläche angegeben werden. Als Standardmodell ist `qwen3:4b-instruct` hinterlegt.
+### Sprachmodell herunterladen
+Als Standardmodell ist `qwen3:4b-instruct` in der Anwendung hinterlegt. Das Modell kann mit folgendem Befehl heruntergeladen werden:
 
-### Modell herunterladen
 ```bash
 ollama pull qwen3:4b-instruct
 ```
 
-Anschließend kann in der Anwendung im Seitenbereich der Modus **Ollama (lokal)** ausgewählt werden. Alternativ kann die Anwendung ohne Ollama im Modus **Fundstellen (ohne KI)** verwendet werden.
+Nach dem Download kann in der Streamlit-Oberfläche im Seitenbereich der Modus **Ollama (lokal)** ausgewählt werden. Dort lassen sich sowohl das verwendete Modell als auch der Ollama-Endpunkt anpassen.
+
+Alternativ steht der Modus **Fundstellen (ohne KI)** zur Verfügung. In diesem Modus werden passende Textstellen gesucht und angezeigt, ohne eine KI-Antwort zu generieren.
+
+> **Datenschutzhinweis:** Aus Datenschutzgründen akzeptiert die Antwortgenerierung ausschließlich lokale HTTP-Endpunkte auf `localhost` oder einer Loopback-IP-Adresse.
 
 ## Tests
 
-Die Tests werden mit folgendem Befehl ausgeführt:
+Die vorhandenen Tests können bei aktivierter virtueller Umgebung mit folgendem Befehl ausgeführt werden:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-> **Hinweis:** Eine laufende Ollama-Instanz ist für die Durchführung der Tests nicht erforderlich.
+Eine laufende Ollama-Instanz ist für die Tests nicht erforderlich.
+
+Geprüft werden unter anderem:
+- Dokumentversionen und Gültigkeitszeiträume
+- Suche und Fundstellen
+- Umgang mit unterschiedlichen Dokumentversionen
+- Prüfprotokoll und Quellenzuordnung
 
 ## Projektstruktur
 
@@ -116,7 +140,11 @@ Wissensassistent-Feuerwehrleitstelle/
 ├── requirements.txt
 ├── README.md
 │
+├── docs/
+│   └── screenshot.png
+│
 ├── src/
+│   ├── __init__.py
 │   ├── database.py
 │   ├── document_loader.py
 │   ├── document_search.py
@@ -124,7 +152,10 @@ Wissensassistent-Feuerwehrleitstelle/
 │   └── version_manager.py
 │
 ├── Dokumente/
-│   ├── Beispieldokumente
+│   ├── ausleihe.txt
+│   ├── schulung.txt
+│   ├── schulung_alt.txt
+│   ├── test.txt
 │   └── metadaten.json
 │
 ├── tests/
@@ -142,13 +173,10 @@ Wissensassistent-Feuerwehrleitstelle/
 
 ## Dokumentverwaltung und Nachvollziehbarkeit
 
-Dokumente werden mit strukturierten Metadaten gespeichert:
-- Dokument-ID
-- Dokumentart
-- Versionsnummer
-- Status (z. B. Freigegeben vs. Entwurf)
-- Gültigkeitszeitraum
+Beim Import eines Dokuments werden unter anderem Dokument-ID, Dokumentart, zuständige Stelle, Versionsnummer, Status und Gültigkeitszeitraum erfasst.
 
-Bei jeder Suche wird automatisch geprüft, welche Dokumente zum jeweiligen Gültigkeitsstichtag verwendet werden dürfen. Die verwendeten Textstellen und Quellen werden zusammen mit den zugehörigen Dokumentinformationen in einem Prüfprotokoll nachvollziehbar dokumentiert.
+Dokumente können als `freigegeben` oder `entwurf` gekennzeichnet werden. Freigegebene Versionen derselben Dokument-ID dürfen keine überlappenden Gültigkeitszeiträume besitzen.
 
-Die SQLite-Datenbank wird lokal im Verzeichnis `data/` gespeichert und ist über `.gitignore` von der Versionsverwaltung ausgeschlossen.
+Bei einer Anfrage wird geprüft, welche Dokumente zum jeweiligen Gültigkeitsstichtag verwendet werden dürfen. Die verwendeten Textstellen und Quellen werden zusammen mit den zugehörigen Dokumentinformationen protokolliert.
+
+Zur Überprüfung der Datenintegrität werden SHA-256-Hashes verwendet. Damit lassen sich nachträgliche Änderungen an Dokumenten und Protokolleinträgen erkennen.
