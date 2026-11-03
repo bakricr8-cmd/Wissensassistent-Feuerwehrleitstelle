@@ -1,128 +1,152 @@
-# Wissensassistent-Feuerwehrleitstelle
+# Wissensassistent Feuerwehrleitstelle
 
-Lokaler Forschungs- und Entwicklungsprototyp für die Suche in Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Standard Operating Procedures (SOPs) und Katastrophenschutzkonzepten. Das Projekt entsteht für die Feuerwehr der Stadt Krefeld.
+Lokaler Wissensassistent zur Suche und Beantwortung von Fragen auf Grundlage von Feuerwehrdokumenten unter Berücksichtigung von Dokumentversionen und Gültigkeitszeiträumen.
 
-## Prototyp-Funktionen
+## Projekt
 
-- Streamlit-Oberfläche mit Frage-/Antwortansicht und Dokumentenverwaltung
-- Import von PDF-, TXT- und Markdown-Dateien
-- Einfache Stichwortsuche in lokal gespeicherten Dokumenten
-- Optional: Antwortgenerierung mit einem lokalen Ollama-Modell
-- Anzeige von Dokumentart, zuständiger Stelle, Version und Fundstelle
-- SQLite-Versionierung: bestehende Versionen können nicht überschrieben werden
-- Berücksichtigung des Status und des Gültigkeitszeitraums
-- Prüfprotokoll mit Gültigkeitsstichtag, verwendeten Textstellen und Quellenhashes
-- Mitgelieferte fiktive Beispieldokumente werden beim Start einmalig importiert
+Dieses Projekt entwickelt einen Wissensassistenten für die Feuerwehr der Stadt Krefeld.
 
-Die Dokumentarten in der Oberfläche sind eine erste Auswahl, noch keine mit der Feuerwehr abgestimmte Taxonomie. Auch Zuständigkeiten und Freigabeabläufe müssen im Auftaktgespräch geklärt werden. Die Suche vergleicht vorerst Stichwörter. Sie findet keine ähnlichen Begriffe oder Bedeutungen. Ollama ist nur für die optionale Antwortformulierung zuständig.
+Ziel ist es, Mitarbeitenden einer Feuerwehrleitstelle den Zugriff auf wichtige Informationen aus verschiedenen Dokumenten zu erleichtern. Dazu gehören beispielsweise Dienstanweisungen, Alarm- und Ausrückeordnungen (AAO), Checklisten, Standard Operating Procedures (SOPs) und Katastrophenschutzkonzepte.
 
-## Projektstruktur
+Dokumente können eingelesen, verwaltet und durchsucht werden. Zu einer Anfrage werden passende Textstellen und die zugehörigen Quellen angezeigt. Optional kann ein lokal ausgeführtes Sprachmodell von Ollama zur Formulierung einer Antwort verwendet werden.
 
-```text
-app.py                    Streamlit-Oberfläche
-src/
-  database.py              SQLite-Schema, Versionen und Prüfprotokoll
-  document_loader.py       PDF-/Text-Extraktion und Metadatenimport
-  document_search.py       Stichwortsuche und Quellenangaben
-  rag_pipeline.py          Promptaufbau und Ollama-Anbindung
-  version_manager.py       Gültigkeits- und Versionsregeln
-Dokumente/                 Fiktive Beispieldokumente und Metadaten
-tests/                     Tests für Retrieval und Versionierung
-data/                      Lokale Datenbank (wird nicht eingecheckt)
-```
+Ein besonderer Schwerpunkt liegt auf der Verwaltung von Dokumentversionen und Gültigkeitszeiträumen, damit abgelaufene oder nicht freigegebene Dokumente nicht als gültige Informationsgrundlage verwendet werden.
+
+## Features
+
+- **Multi-Format-Import:** Import von PDF-, TXT- und Markdown-Dateien
+- **Semantische & Textsuche:** Suche nach passenden Textstellen in den hinterlegten Dokumenten
+- **Lokale KI-Integration:** Optionale Antwortgenerierung mit einem lokalen Ollama-Modell
+- **Transparenz:** Anzeige der verwendeten Dokumente und Fundstellen
+- **Gültigkeits- & Versionsverwaltung:** Steuerung von Dokumentversionen, Gültigkeitszeiträumen und Unterscheidung zwischen freigegebenen Dokumenten und Entwürfen
+- **Lokale Datenspeicherung:** Speicherung von Dokumentinformationen und Suchvorgängen in SQLite
+- **Audit-Trail:** Prüfprotokoll mit Quellen und Dokumentversionen
+- **Datenschutz:** Vollständig lokale Verarbeitung aller Dokumente
+
+## Inhaltsverzeichnis
+
+- [Voraussetzungen](#voraussetzungen)
+- [Installation](#installation)
+- [Anwendung starten](#anwendung-starten)
+- [Ollama konfigurieren](#ollama-konfigurieren)
+- [Tests](#tests)
+- [Projektstruktur](#projektstruktur)
+- [Dokumentverwaltung und Nachvollziehbarkeit](#dokumentverwaltung-und-nachvollziehbarkeit)
 
 ## Voraussetzungen
 
-- Python 3.11 oder neuer
-- Für KI-generierte Antworten optional: Ollama und ein lokales Chatmodell
-- Keine Ollama-Installation für Retrieval-only erforderlich
+- **Python:** 3.11 oder neuer
+- **Package Manager:** `pip` zur Installation der Python-Bibliotheken
+- **Versionsverwaltung:** Git zum Klonen des Repositorys
+- **Optional:** Ollama für die KI-gestützte Antwortgenerierung (für die reine Dokumentensuche wird keine Ollama-Installation benötigt)
 
 ## Installation
 
-### Windows (PowerShell)
+### 1. Repository klonen
+```bash
+git clone <REPOSITORY-URL>
+cd Wissensassistent-Feuerwehrleitstelle
+```
 
+### 2. Virtuelle Umgebung erstellen
+
+#### Windows (PowerShell)
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+.venv\Scripts\Activate.ps1
 ```
 
-### macOS (Terminal)
-
-Prüfe zuerst, ob Python 3.11 oder neuer installiert ist:
-
-```bash
-python3 --version
-```
-
-Erstelle dann im Projektordner eine virtuelle Umgebung und installiere die Abhängigkeiten:
-
+#### macOS / Linux
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+```
+
+### 3. Bibliotheken installieren
+```bash
 python -m pip install -r requirements.txt
 ```
 
-Falls `python3` fehlt oder älter als 3.11 ist, installiere eine aktuelle Python-Version, zum Beispiel von [python.org](https://www.python.org/downloads/macos/), und führe die Befehle erneut aus.
+## Anwendung starten
 
-## Start
-
-In einem aktivierten virtuellen Environment:
+Die Anwendung wird mit Streamlit gestartet:
 
 ```bash
 streamlit run app.py
 ```
 
-Der Startbefehl ist unter Windows und macOS gleich.
+Nach dem Start ist die Benutzeroberfläche standardmäßig unter folgender Adresse erreichbar:  
+[http://localhost:8501](http://localhost:8501)
 
-Beim ersten Start werden die Beispielversionen aus `Dokumente/` und `Dokumente/metadaten.json` in `data/wissensassistent.sqlite3` übernommen. Die alte Version der Schulungsunterlage bleibt als Historie erhalten, wird aber außerhalb ihres Gültigkeitszeitraums nicht für Antworten verwendet.
+## Ollama konfigurieren
 
-Im Seitenbereich kann zwischen **Fundstellen (ohne KI)** und **Ollama (lokal)** gewechselt werden. Für Ollama muss der Dienst laufen und das ausgewählte Modell vorhanden sein, beispielsweise:
+Für die KI-gestützte Antwortgenerierung muss Ollama installiert und gestartet sein.
 
+Die Anwendung verwendet standardmäßig folgende lokale Verbindung:
+- **URL:** `http://127.0.0.1:11434`
+- **Port:** `11434`
+
+Das verwendete Modell kann in der Benutzeroberfläche angegeben werden. Als Standardmodell ist `qwen3:4b-instruct` hinterlegt.
+
+### Modell herunterladen
 ```bash
 ollama pull qwen3:4b-instruct
 ```
 
-Der lokale Ollama-Port und der Modellname sind in der Oberfläche änderbar. Aus Datenschutzgründen akzeptiert die Antwortgenerierung nur HTTP auf `localhost` oder einer Loopback-IP. Ist Ollama nicht erreichbar, zeigt die Anwendung einen Fehler an und wechselt nicht stillschweigend in einen anderen Antwortmodus.
-
-Für KI-generierte Antworten unter macOS Ollama von [ollama.com/download](https://ollama.com/download) installieren und starten. Anschließend im Terminal das gewünschte Modell laden:
-
-```bash
-ollama pull qwen3:4b-instruct
-```
+Anschließend kann in der Anwendung im Seitenbereich der Modus **Ollama (lokal)** ausgewählt werden. Alternativ kann die Anwendung ohne Ollama im Modus **Fundstellen (ohne KI)** verwendet werden.
 
 ## Tests
 
-Bei aktivierter virtueller Umgebung:
+Die Tests werden mit folgendem Befehl ausgeführt:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Die Tests benötigen keine Ollama-Instanz. Sie prüfen unter anderem Gültigkeitszeiträume, Versionen, Fundstellen und das Prüfprotokoll.
+> **Hinweis:** Eine laufende Ollama-Instanz ist für die Durchführung der Tests nicht erforderlich.
 
-## Dokumentpflege und Nachvollziehbarkeit
+## Projektstruktur
 
-Beim Import werden Dokument-ID, Dokumentart, zuständige Stelle, Versionsnummer, Status (`freigegeben` oder `entwurf`) und Gültigkeitszeitraum erfasst. Dokumentart und zuständige Stelle dürfen vorerst offenbleiben. Freigegebene Versionen derselben Dokument-ID dürfen keine überlappenden Zeiträume haben. Bei einer Frage prüft die Suche die Gültigkeit für den angezeigten Stichtag. Datum, Antwort und die tatsächlich verwendeten Textstellen werden mit Versionsangabe und Datei-Hash protokolliert.
+```text
+Wissensassistent-Feuerwehrleitstelle/
+│
+├── app.py
+├── requirements.txt
+├── README.md
+│
+├── src/
+│   ├── database.py
+│   ├── document_loader.py
+│   ├── document_search.py
+│   ├── rag_pipeline.py
+│   └── version_manager.py
+│
+├── Dokumente/
+│   ├── Beispieldokumente
+│   └── metadaten.json
+│
+├── tests/
+│   ├── test_rag.py
+│   └── test_versions.py
+│
+├── UML/
+│   ├── Aktivitätendiagramm.pdf
+│   ├── Komponentendiagramm.pdf
+│   └── Use Case Diagramm.pdf
+│
+└── data/
+    └── wissensassistent.sqlite3
+```
 
-Der Prototyp kann Versionen aufnehmen, aber noch keinen abgestimmten Freigabe- oder Rücknahmeprozess abbilden. Wie eine zuständige Stelle eine Freigabe, Korrektur oder kurzfristige Rücknahme dokumentiert, muss mit der Feuerwehr besprochen werden.
+## Dokumentverwaltung und Nachvollziehbarkeit
 
-Die gespeicherten Dateien und Ereignisse sind durch SHA-256-Hashes miteinander verknüpft. Änderungen an Text, Metadaten oder Protokoll lassen sich dadurch erkennen. Das ist keine revisionssichere Archivierung: Eine lokale SQLite-Datei kann außerhalb der Anwendung ersetzt werden.
+Dokumente werden mit strukturierten Metadaten gespeichert:
+- Dokument-ID
+- Dokumentart
+- Versionsnummer
+- Status (z. B. Freigegeben vs. Entwurf)
+- Gültigkeitszeitraum
 
-Vor einem Test mit Krefelder Unterlagen sollte geklärt werden:
+Bei jeder Suche wird automatisch geprüft, welche Dokumente zum jeweiligen Gültigkeitsstichtag verwendet werden dürfen. Die verwendeten Textstellen und Quellen werden zusammen mit den zugehörigen Dokumentinformationen in einem Prüfprotokoll nachvollziehbar dokumentiert.
 
-- Welche Unterlagen und Ablageorte gehören zum Projekt?
-- Wer hält ein Dokument aktuell und wer gibt neue Versionen frei?
-- Welche Status und Gültigkeitsregeln gelten heute?
-- Welche Beispieldokumente dürfen für den Prototyp verwendet werden?
-- Welche Fundstelle soll in einer Antwort sichtbar sein?
-- Welche Anforderungen gelten für Zugriffsrechte, Datenschutz und Protokollierung?
-
-## Sicherheit und Grenzen
-
-- Ausschließlich fiktive oder ausdrücklich freigegebene Testdaten verwenden.
-- Fragen und Antworten werden lokal in SQLite protokolliert. Die Datenbank liegt unter `data/` und wird durch `.gitignore` vom Git-Repository ausgeschlossen.
-- Der Prototyp hat keine Benutzeranmeldung, Rollen, OCR, abgestimmten Freigabe- und Rücknahmeprozess oder garantierte semantische Suche.
-- Die Hash-Kette ersetzt keine revisionssichere Langzeitarchivierung.
-- KI-Antworten können unvollständig oder falsch sein. Quellen sind immer anhand des freigegebenen Originaldokuments zu prüfen.
-- Das System ist nicht für operative Dispositionsentscheidungen freigegeben.
+Die SQLite-Datenbank wird lokal im Verzeichnis `data/` gespeichert und ist über `.gitignore` von der Versionsverwaltung ausgeschlossen.
