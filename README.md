@@ -12,6 +12,8 @@ Dokumente können eingelesen, verwaltet und durchsucht werden. Zu einer Anfrage 
 
 Ein besonderer Schwerpunkt liegt auf der Verwaltung von Dokumentversionen und Gültigkeitszeiträumen, damit abgelaufene oder nicht freigegebene Dokumente nicht als gültige Informationsgrundlage verwendet werden.
 
+![Benutzeroberfläche des Wissensassistenten](UML/Screenshot.png)
+
 ## Features
 
 - **Multi-Format-Import:** Import von PDF-, TXT- und Markdown-Dateien
